@@ -9,19 +9,37 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.11.2",
+    "@azure-rest/ai-inference": "latest",
+    "@azure/core-auth": "latest",
+    "@azure/core-sse": "latest",
+    "@prisma/client": "^5.22.0",
+    "@types/bcryptjs": "^3.0.0",
+    "axios": "^1.11.0",
+    "bcryptjs": "^3.0.3",
+    "framer-motion": "^12.23.12",
+    "jotai": "^2.12.5",
+    "lightswind": "^3.1.15",
+    "motion": "^12.23.6",
+    "next": "15.3.4",
+    "next-auth": "^4.24.14",
+    "openai": "^5.8.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.3.4"
+    "react-hot-toast": "^2.6.0",
+    "redis": "^5.8.2",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
-    "@eslint/eslintrc": "^3"
+    "prisma": "^5.22.0",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }

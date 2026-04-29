@@ -1,26 +1,199 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+.text-neon {
+      font-family: var(--font-neon);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.text-kidding {
+      font-family: var(--font-kidding);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.text-blocked {
+      font-family: var(--font-blocked);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.text-adventure {
+      font-family: var(--font-adventure);
+}
+
+.text-roboto {
+      font-family: var(--font-roboto);
+}
+
+@keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
+}
+
+.float-animation {
+      animation: float 2s ease-in-out infinite;
+}
+
+@layer utilities {
+      @keyframes realistic-flicker {
+            0%   { color: #374151; opacity: 0.1; transform: scale(1) rotate(0deg); }
+            20%  { color: #374151; opacity: 0.1; transform: scale(1.02) rotate(0.3deg); }
+            24%  { color: #fcd34d; opacity: 1; text-shadow: 0 0 6px #fcd34d; transform: scale(1.05); }
+            24.5%{ color: #374151; opacity: 0.1; transform: scale(0.98); }
+            28%  { color: #fcd34d; opacity: 1; text-shadow: 0 0 6px #fcd34d; transform: scale(1.03); }
+            33%  { color: #374151; opacity: 0.1; transform: rotate(-0.5deg); }
+            50%  { color: #fcd34d; opacity: 1; text-shadow: 0 0 8px #fcd34d, 0 0 12px #fcd34d; transform: scale(1.1); }
+            50.5%{ color: #374151; opacity: 0.1; transform: scale(0.87); }
+            90%  { color: #fcd34d; opacity: 1; transform: scale(1.03); }
+            100% { color: #fcd34d; opacity: 1; text-shadow: 0 0 2px #fcd34d, 0 0 20px #fcd34d; transform: scale(1.03); }
+      }
+
+      .animate-tube-light {
+            animation: realistic-flicker 5s ease-out forwards;
+            display: inline-block;
+            will-change: transform, opacity;
+      }
+}
+
+@layer utilities {
+      @keyframes realistic-flicker-icons {
+            0%   { opacity: 0; transform: scale(1); }
+            20%  { opacity: 0; transform: scale(1);}
+            24%  { opacity: 1; }
+            24.5%{ opacity: 0; }
+            28%  { opacity: 1; }
+            33%  { opacity: 0; }
+            50%  { opacity: 0; transform: scale(1);}
+            50.5%{ opacity: 0; transform: scale(0.7); }
+            90%  { opacity: 1; transform: scale(1);}
+            100% { opacity: 1;}
+      }
+
+      .animate-floater-icons {
+            animation: realistic-flicker-icons 5s ease-out forwards;
+            display: inline-block;
+            will-change: transform, opacity;
+      }
+}
+
+@layer utilities {
+      @keyframes pop-up-search {
+            0%   { opacity: 0; transform: scale(0);}
+            20%  { opacity: 0; }
+            24%  { opacity: 0; }
+            24.5%{ opacity: 0; }
+            28%  { opacity: 0; }
+            33%  { opacity: 0; }
+            50%  { opacity: 0; }
+            50.5%{ opacity: 0; }
+            90%  { opacity: 1; transform: scale(1);}
+            100% { opacity: 1;}
+      }
+
+      .animate-search-pop-up {
+            animation: pop-up-search 5s ease-out forwards;
+            display: inline-block;
+            will-change: transform, opacity;
+      }
+}
+
+@layer utilities {
+      @keyframes draw-path {
+            from {
+                  stroke-dashoffset: 100;
+            }
+            to {
+                  stroke-dashoffset: 0;
+            }
+      }
+
+      .svg-path-visible {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 0.3s ease-in-out;
+      }
+
+      .svg-hover-draw:hover .svg-path-visible {
+            animation: draw-path 1s ease forwards;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+      }
+}
+
+@layer utilities {
+      @keyframes handwriting {
+            0% {
+                  mask-size: 0% 100%;
+                  -webkit-mask-size: 0% 100%;
+            }
+            100% {
+                  mask-size: 100% 100%;
+                  -webkit-mask-size: 100% 100%;
+            }
+      }
+
+      .handwritten {
+            color: transparent;
+            background: linear-gradient(to right, #ffffff 0%, #fcd34d 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+
+            mask-image: linear-gradient(to right, black 100%, transparent 0%);
+            -webkit-mask-image: linear-gradient(to right, black 100%, transparent 0%);
+
+            mask-repeat: no-repeat;
+            -webkit-mask-repeat: no-repeat;
+
+            mask-size: 0% 100%;
+            -webkit-mask-size: 0% 100%;
+
+            animation: handwriting 5s ease forwards;
+            -webkit-animation: handwriting 5s ease forwards;
+      }
+}
+
+@layer utilities {
+      @keyframes rotate-glow {
+            0% {
+                  transform: rotate(0deg);
+            }
+            100% {
+                  transform: rotate(360deg);
+            }
+      }
+
+      .glow-border-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            background-color: #0a0f1c;
+            color: white;
+            overflow: hidden;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 0;
+      }
+
+      .glow-border-wrapper::before {
+            background: conic-gradient(
+                  rgba(244, 114, 182, 0.4) 0deg,
+                  rgba(192, 132, 252, 0.4) 0deg,
+                  transparent 80deg
+            );
+            position: absolute;
+            left: -50%;
+            top: -150%;
+            height: 400%;
+            width: 200%;
+            animation: rotate-glow 4s linear infinite;
+            content: '';
+      }
+
+      .glow-border-inner {
+            position: relative;
+            left: 0%;
+            top: 0%;
+            height: calc(100% - 1.5px);
+            width: calc(100% - 1.5px);
+            border-radius: 1.5rem;
+            background-color: #080b12;
+      }
 }

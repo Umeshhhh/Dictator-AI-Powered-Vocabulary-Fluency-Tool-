@@ -1,36 +1,217 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dictator
 
-## Getting Started
+Dictator is a full-stack vocabulary learning platform built with Next.js. It helps users search words, understand definitions, hear pronunciations, save vocabulary, and practice words through a personalized learning dashboard.
 
-First, run the development server:
+The project combines an animated user interface with authentication, PostgreSQL persistence, Redis caching, and AI-powered word enrichment.
+
+## Features
+
+- AI-assisted word lookup with definitions, synonyms, antonyms, example sentences, and pronunciation links.
+- Redis-backed caching for faster repeated word searches.
+- Credentials, Google, and GitHub authentication through NextAuth.
+- Personal vocabulary dashboard for saved words.
+- Practice page with multiple learning modes and basic spaced-repetition recommendations.
+- User progress stats including saved words, completed exercises, estimated study time, and accuracy.
+- Animated responsive UI with Tailwind CSS, Framer Motion, custom fonts, particle backgrounds, and reusable components.
+- Dockerized production setup with Next.js standalone output, PostgreSQL, Redis, health checks, and Prisma schema sync.
+
+## Tech Stack
+
+- Framework: Next.js 15, React 19, TypeScript
+- Styling: Tailwind CSS 4, custom local fonts
+- Animation/UI: Framer Motion, Jotai, react-hot-toast
+- Authentication: NextAuth, Prisma adapter, credentials, Google OAuth, GitHub OAuth
+- Database: PostgreSQL with Prisma ORM
+- Cache: Redis
+- AI/Word generation: GitHub Models through `@azure-rest/ai-inference`
+- Deployment: Docker, Docker Compose, Next.js standalone server
+
+## Project Structure
+
+```text
+.
+|-- components/              # Shared UI components
+|-- prisma/                  # Prisma schema
+|-- scripts/                 # Docker runtime scripts
+|-- src/
+|   |-- app/                 # Next.js App Router pages, API routes, server actions
+|   |-- lib/                 # Auth, Prisma, Redis clients
+|   |-- services/            # Additional service experiments/utilities
+|   `-- types/               # TypeScript module declarations
+|-- store/                   # Jotai atoms
+|-- Dockerfile
+`-- docker-compose.yml
+```
+
+## Environment Variables
+
+Create a `.env.local` file for local development:
+
+```env
+DATABASE_URL="postgresql://user:password@localhost:5433/dictator?schema=public"
+REDIS_URL="redis://localhost:6379"
+
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="replace-with-a-secure-random-secret"
+
+NEXT_GITHUB_TOKEN="your-github-models-token"
+
+GITHUB_ID=""
+GITHUB_SECRET=""
+GOOGLE_ID=""
+GOOGLE_SECRET=""
+```
+
+For Docker, create `.env.docker`:
+
+```env
+DATABASE_URL=postgresql://user:password@postgres:5432/dictator?schema=public
+REDIS_URL=redis://redis:6379
+
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=replace-with-a-secure-random-secret
+
+NEXT_GITHUB_TOKEN=your-github-models-token
+
+GITHUB_ID=
+GITHUB_SECRET=
+GOOGLE_ID=
+GOOGLE_SECRET=
+```
+
+Do not commit real secrets. Rotate any token that was accidentally committed.
+
+## Run Locally
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start PostgreSQL and Redis. The easiest way is to run only the supporting services with Docker:
+
+```bash
+docker compose up -d postgres redis
+```
+
+Generate Prisma Client:
+
+```bash
+npx prisma generate
+```
+
+Sync the database schema:
+
+```bash
+npx prisma db push
+```
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Run With Docker
 
-## Learn More
+Build and start the full stack:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+docker compose up -d --build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This starts:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Next.js app on `http://localhost:3000`
+- PostgreSQL on host port `5433`
+- Redis on host port `6379`
 
-## Deploy on Vercel
+Check running services:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+docker compose ps
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+View app logs:
+
+```bash
+docker compose logs app -f
+```
+
+Stop the stack:
+
+```bash
+docker compose down
+```
+
+Remove the database volume as well:
+
+```bash
+docker compose down -v
+```
+
+## Available Scripts
+
+```bash
+npm run dev      # Start development server
+npm run build    # Build production app
+npm run start    # Start production server
+npm run lint     # Run lint command
+```
+
+## Core Pages
+
+- `/` - Landing and word search experience.
+- `/search?word=example` - Word definition result page.
+- `/login` - Sign in and registration page.
+- `/dashboard` - Saved vocabulary and user stats.
+- `/practice` - Vocabulary practice modes and recommendations.
+- `/api/auth/[...nextauth]` - NextAuth API route.
+
+## How It Works
+
+1. The user enters a word from the home page or search page.
+2. The app checks Redis for cached word data.
+3. If the word is not cached, the server action calls GitHub Models and asks for structured vocabulary data.
+4. The result is stored in Redis with a 24-hour expiry.
+5. Logged-in users can save words to PostgreSQL through Prisma.
+6. Dashboard and practice pages use saved words and practice history to personalize the experience.
+
+## Database Models
+
+The Prisma schema includes standard NextAuth models plus:
+
+- `SavedWord` - stores words saved by each user.
+- `PracticeHistory` - tracks user practice attempts and success.
+- `User.password` - supports credentials authentication.
+
+## Docker Notes
+
+The Docker image uses Next.js standalone output for a smaller runtime container. On startup, the app container prepares the database schema:
+
+- If Prisma migrations exist, it runs `prisma migrate deploy`.
+- If no migrations exist, it runs `prisma db push --skip-generate`.
+
+Prisma Client is generated during the image build.
+
+## Production Considerations
+
+Before deploying publicly:
+
+- Use strong `NEXTAUTH_SECRET` values.
+- Configure real OAuth credentials for Google and GitHub.
+- Rotate and protect all API tokens.
+- Prefer Prisma migrations over `db push` for long-term production environments.
+- Review dependency audit warnings and update packages where practical.
+- Replace development URLs with your production domain.
+
+## Status
+
+Dictator is structured as a major full-stack portfolio project with authentication, persistence, caching, AI integration, and Dockerized deployment. The project currently builds successfully and runs through Docker Compose.

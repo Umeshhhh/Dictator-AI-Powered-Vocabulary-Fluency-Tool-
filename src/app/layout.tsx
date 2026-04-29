@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Roboto } from "next/font/google";
+import localFont from "next/font/local";
+import { Toaster } from "react-hot-toast";
 import "./globals.css";
+import Provider from "./provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -11,6 +14,31 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+const roboto = Roboto({
+  variable: "--font-roboto",
+  subsets: ["latin"],
+})
+
+const neon = localFont({
+  src: './fonts/Neoneon-3zaD6.otf',
+  variable: "--font-neon",
+})
+
+const kidding = localFont({
+  src: './fonts/JustKidding-PPOd.ttf',
+  variable: "--font-kidding",
+})
+
+const blocked = localFont({
+  src: './fonts/BlockedOff-n4OR.ttf',
+  variable: "--font-blocked",
+})
+
+const adventure = localFont({
+  src: './fonts/AdventureSubtitlesBoldItalic-2Gao.ttf',
+  variable: "--font-adventure",
+})
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -25,9 +53,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${neon.variable} ${roboto.variable} ${adventure.variable} ${blocked.variable} ${kidding.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <Provider>
+          {children}
+          <Toaster position="bottom-right" />
+        </Provider>
       </body>
     </html>
   );
