@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function LoginUser(){
     const { data: session } = useSession();
@@ -36,10 +37,17 @@ export default function LoginUser(){
                             title="Account"
                         >
                             {session.user?.image ? (
-                                <img src={session.user.image} alt="User" className="w-full h-full object-cover" />
+                                <Image
+                                    src={session.user.image}
+                                    alt="User"
+                                    width={40}
+                                    height={40}
+                                    unoptimized
+                                    className="w-full h-full object-cover"
+                                />
                             ) : (
                                 <p className='text-lg md:text-xl text-white font-semibold'>
-                                    {session.user?.name?.charAt(0) || session.user?.email?.charAt(0) || "U"}
+                                    {session.user?.name?.charAt(0) || session.user?.email?.charAt(0)}
                                 </p>
                             )}
                         </div>
@@ -58,12 +66,11 @@ export default function LoginUser(){
                     </div>
                 </div>
             ) : (
-                <Link href="/login">
-                    <button 
-                        className={`py-2 px-4 md:py-3 md:px-5 bg-gray-900 rounded-xl hover:scale-105 cursor-pointer border-0 transition-all duration-300 text-white text-sm md:text-base font-semibold`}
-                    >
-                        Sign In
-                    </button>
+                <Link
+                    href="/login"
+                    className="py-2 px-4 md:py-3 md:px-5 bg-gray-900 rounded-xl hover:scale-105 cursor-pointer border-0 transition-all duration-300 text-white text-sm md:text-base font-semibold"
+                >
+                    Sign In
                 </Link>
             )}
         </div>

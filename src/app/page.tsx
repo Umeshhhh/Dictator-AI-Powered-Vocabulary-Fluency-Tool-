@@ -25,7 +25,7 @@ export default function Home() {
         </div>
         <footer className="w-full bg-black">
           <ContactUsButton />
-          <p className="text-center text-white p-3">© 2024 Dictator. Made with ❤️ for word lovers everywhere.</p>
+          <p className="text-center text-white p-3">© 2026 Dictator. Made with ❤️ for word lovers everywhere.</p>
         </footer>
       </DotBackground>
     </div>

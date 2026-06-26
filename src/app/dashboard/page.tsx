@@ -23,13 +23,11 @@ export default async function DashboardPage() {
                             <h1 className="text-4xl sm:text-5xl md:text-6xl text-adventure text-neon tracking-wide">My Vocabulary</h1>
                             <p className="text-gray-400 mt-2 text-sm md:text-base">Your personal word collection • Keep learning, keep growing</p>
                         </div>
-                        <Link href="/">
-                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold transition-all hover:scale-105 text-sm md:text-base flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="size-5">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                                </svg>
-                                Add Words
-                            </button>
+                        <Link href="/" className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold transition-all hover:scale-105 text-sm md:text-base flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="size-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                            Add Words
                         </Link>
                     </div>
 
@@ -64,10 +62,8 @@ export default async function DashboardPage() {
                             </div>
                             <p className="text-xl md:text-2xl text-gray-200 font-semibold">Your vocabulary is empty</p>
                             <p className="text-gray-400 mt-2 text-sm md:text-base">Search for words and save them to build your personal dictionary.</p>
-                            <Link href="/">
-                                <button className="mt-6 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-all hover:scale-105">
-                                    Start Exploring
-                                </button>
+                            <Link href="/" className="inline-block mt-6 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-all hover:scale-105">
+                                Start Exploring
                             </Link>
                         </div>
                     ) : (

@@ -45,7 +45,8 @@ const main = async ({word}: {word: string}) => {
 
   if (isUnexpected(response)) {
     throw response.body.error;
-  }const responseSe = response.body.choices[0].message.content;
+  }
+  const responseSe = response.body.choices[0].message.content;
   if(responseSe){
     const clean = responseSe.slice(13, responseSe.length - 3 );
     console.log(clean);

@@ -36,7 +36,6 @@ The project combines an animated user interface with authentication, PostgreSQL 
 |-- src/
 |   |-- app/                 # Next.js App Router pages, API routes, server actions
 |   |-- lib/                 # Auth, Prisma, Redis clients
-|   |-- services/            # Additional service experiments/utilities
 |   `-- types/               # TypeScript module declarations
 |-- store/                   # Jotai atoms
 |-- Dockerfile
@@ -121,17 +120,23 @@ http://localhost:3000
 
 ## Run With Docker
 
-Build and start the full stack:
+Start the local development stack:
 
 ```bash
-docker compose up -d --build
+docker compose up -d
 ```
 
 This starts:
 
-- Next.js app on `http://localhost:3000`
+- Next.js dev server on `http://localhost:3000`
 - PostgreSQL on host port `5433`
 - Redis on host port `6379`
+
+The app service mounts the project source into the container, so code edits are picked up by the running Next.js dev server. Rebuild only when dependencies or Docker configuration change:
+
+```bash
+docker compose up -d --build
+```
 
 Check running services:
 
