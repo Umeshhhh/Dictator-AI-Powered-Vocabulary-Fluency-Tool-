@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
 import { revalidatePath } from "next/cache";
+import { rateLimit } from "@/lib/rateLimit";
 
 export async function saveWord(word: string) {
   try {
@@ -26,6 +27,29 @@ export async function saveWord(word: string) {
 
     if (existingWord) {
       return { message: "Word is already saved!" };
+    }
+
+    const minuteLimit = await rateLimit({
+      key: `rate:save-word:minute:user:${userId}`,
+      limit: 30,
+      windowSeconds: 60
+    });
+
+    if(!minuteLimit.success){
+      return {
+        error: "You are saving words to quickly. Please wait a minute."
+      }
+    }
+
+    const dayLimit = await rateLimit({
+      key: `rate:save-word:day:user:${userId}`,
+      limit: 200,
+      windowSeconds: 60 * 60 * 24
+    });
+    if(!dayLimit.success) {
+      return {
+        error: "Daily saved word limit reached. Please try again tomorrow."
+      }
     }
 
     await prisma.savedWord.create({

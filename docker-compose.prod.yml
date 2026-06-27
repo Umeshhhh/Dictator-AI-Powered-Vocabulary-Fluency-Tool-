@@ -4,17 +4,18 @@ services:
       context: .
       dockerfile: Dockerfile
       target: runner
-    image: dictator-app:latest
-    expose:
-      - "3000"
+    image: dictator-app-prod
+    container_name: dictator-app-prod
+    ports:
+      - "${APP_PORT:-3000}:3000"
     environment:
       NODE_ENV: production
       NEXT_TELEMETRY_DISABLED: "1"
       HOSTNAME: "0.0.0.0"
       PORT: "3000"
-      DATABASE_URL: "postgresql://user:password@postgres:5432/dictator?schema=public"
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-dictator}:${POSTGRES_PASSWORD:-dictator-internal}@postgres:5432/${POSTGRES_DB:-dictator}?schema=public"
       REDIS_URL: "redis://redis:6379"
-      NEXTAUTH_URL: "https://dictator.umesh.app"
+      NEXTAUTH_URL: "${NEXTAUTH_URL:-}"
       NEXTAUTH_SECRET: "${NEXTAUTH_SECRET:-}"
       NEXT_GITHUB_TOKEN: "${NEXT_GITHUB_TOKEN:-}"
       GITHUB_ID: "${GITHUB_ID:-}"
@@ -27,50 +28,34 @@ services:
       redis:
         condition: service_healthy
     restart: unless-stopped
-    init: true
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000 >/dev/null 2>&1 || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 5
-      start_period: 45s
-
-  proxy:
-    image: caddy:2-alpine
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      app:
-        condition: service_healthy
-    restart: unless-stopped
+      start_period: 30s
 
   postgres:
     image: postgres:15-alpine
+    container_name: dictator-postgres-prod
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: dictator
+      POSTGRES_USER: "${POSTGRES_USER:-dictator}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-dictator-internal}"
+      POSTGRES_DB: "${POSTGRES_DB:-dictator}"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d dictator"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dictator} -d ${POSTGRES_DB:-dictator}"]
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 5
 
   redis:
     image: redis:7-alpine
+    container_name: dictator-redis-prod
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redis_data:/data
-    restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -80,5 +65,3 @@ services:
 volumes:
   postgres_data:
   redis_data:
-  caddy_data:
-  caddy_config:

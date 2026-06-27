@@ -52,6 +52,9 @@ function SearchContent() {
             if (!parsedResult) {
                 throw new Error("Could not find definition.");
             }
+            if ("error" in parsedResult) {
+                throw new Error(parsedResult.error);
+            }
             setSearchWordData({
                 word: parsedResult.word || word,
                 definition: parsedResult.definition || '',
@@ -62,8 +65,9 @@ function SearchContent() {
             });
         } catch(err) {
             console.error('Error searching word:', err);
-            setError('An error occurred while fetching the word. Please Retry.');
-            toast.error('Failed to fetch word definition.');
+            const message = err instanceof Error ? err.message : 'An error occurred while fetching the word. Please Retry.';
+            setError(message);
+            toast.error(message);
         } finally {
             setLoading(false); 
         }

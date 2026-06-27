@@ -6,6 +6,8 @@ import type { Adapter } from "next-auth/adapters";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "./prisma";
 import bcrypt from "bcryptjs";
+import { getIp } from "./request";
+import { rateLimit, resetRateLimit } from "./rateLimit";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as Adapter,
@@ -21,6 +23,27 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Missing email or password");
         }
 
+        const ip = await getIp();
+        const email = credentials.email.toLowerCase();
+
+        const byIp = {
+          key: `rate:login:ip:${ip}`,
+          limit: 5,
+          windowSeconds: 60 * 15
+        };
+        const byEmail = {
+          key: `rate:login:email:${email}`,
+          limit: 5,
+          windowSeconds: 60 * 15
+        };
+
+        const limitByIp = await rateLimit(byIp);
+        const limitByEmail = await rateLimit(byEmail)
+
+        if(!limitByIp.success || !limitByEmail.success) {
+          throw new Error("Too many login attempts. Please try again later...");
+        }
+
         const user = await prisma.user.findUnique({
           where: { email: credentials.email }
         });
@@ -34,6 +57,11 @@ export const authOptions: NextAuthOptions = {
         if (!isCorrectPassword) {
           throw new Error("Invalid credentials");
         }
+
+        await Promise.all([
+          resetRateLimit(byIp.key),
+          resetRateLimit(byEmail.key)
+        ]);
 
         return user;
       }

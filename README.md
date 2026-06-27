@@ -112,6 +112,8 @@ Start the development server:
 npm run dev
 ```
 
+This command also starts PostgreSQL and Redis for local development through Docker. They bind only to `127.0.0.1` on ports `5433` and `6379`.
+
 Open:
 
 ```text
@@ -120,23 +122,36 @@ http://localhost:3000
 
 ## Run With Docker
 
-Start the local development stack:
+Build and start the complete production stack:
 
 ```bash
-docker compose up -d
+docker-compose up -d --build
 ```
 
 This starts:
 
-- Next.js dev server on `http://localhost:3000`
-- PostgreSQL on host port `5433`
-- Redis on host port `6379`
+- Production Next.js server at `https://dictator.umesh.app`
+- PostgreSQL and Redis on an internal Docker network only
+- Persistent PostgreSQL and Redis data volumes
 
-The app service mounts the project source into the container, so code edits are picked up by the running Next.js dev server. Rebuild only when dependencies or Docker configuration change:
+The reverse proxy publishes ports `80` and `443`; the application, PostgreSQL, and Redis ports remain private. Before starting it, point an `A` DNS record for `dictator.umesh.app` to the server's public IPv4 address and allow inbound TCP ports `80` and `443` (plus UDP `443` for HTTP/3).
 
 ```bash
-docker compose up -d --build
+docker-compose up -d --build
 ```
+
+The stack starts without an environment file. For a real domain and optional OAuth or AI features, provide the relevant values in `.env`:
+
+```env
+NEXTAUTH_SECRET=replace-with-a-secure-random-secret
+NEXT_GITHUB_TOKEN=your-github-models-token
+GITHUB_ID=optional-github-oauth-client-id
+GITHUB_SECRET=optional-github-oauth-client-secret
+GOOGLE_ID=optional-google-oauth-client-id
+GOOGLE_SECRET=optional-google-oauth-client-secret
+```
+
+When `NEXTAUTH_SECRET` is omitted, the container generates one automatically. Set a stable value in production so login sessions survive container replacement.
 
 Check running services:
 

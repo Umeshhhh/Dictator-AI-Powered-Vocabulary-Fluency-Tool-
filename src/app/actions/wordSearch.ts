@@ -2,8 +2,11 @@
 
 import ModelClient, { isUnexpected } from "@azure-rest/ai-inference";
 import { AzureKeyCredential } from "@azure/core-auth";
-import axios from "axios";
-import { redis } from "@/lib/redis";
+import { getRedis } from "@/lib/redis";
+import { getIp } from "@/lib/request";
+import { getServerSession } from "next-auth/next";
+import { rateLimit } from "@/lib/rateLimit";
+import { authOptions } from "@/lib/authOptions";
 
 const token = process.env.NEXT_GITHUB_TOKEN;
 const endpoint = "https://models.github.ai/inference";
@@ -12,8 +15,11 @@ const model = "meta/Llama-4-Scout-17B-16E-Instruct";
 export const audioBackup = async (word: string) => {
 
   try{
-    const response = await axios.get(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
-    return response.data[0].phonetics[0].audio;
+    const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+    if (!response.ok) return "";
+
+    const data = await response.json();
+    return data[0]?.phonetics?.[0]?.audio || "";
   }catch(err){
     console.error('Error fetching audio from backup API:', err);
     return '';
@@ -56,10 +62,42 @@ const main = async ({word}: {word: string}) => {
 }
 
 export async function wordSearch(word: string) {
+
+  const ip = await getIp();
+  const session = await getServerSession(authOptions);
+
+  const dayLimits = {
+    key: session?.user?.id ? `rate:word-search:day:${session.user.id}` : `rate:word-search:day:${ip}`,
+    limit: 100,
+    windowSeconds: 60 * 60 * 24
+  }
+
+  const minLimits = {
+    key: `rate:word-search:minute:${ip}`,
+    limit: 20,
+    windowSeconds: 60
+  }
+
+  const minLimit = await rateLimit(minLimits);
+  const dayLimit = await rateLimit(dayLimits);
+
+  if(!minLimit.success) {
+    return {
+      error: "Too many searches. Please wait a minute"
+    };
+  }
+
+  if(!dayLimit.success){
+    return {
+      error: "Daily search limit reached. Please try again tomorrow"
+    };
+  }
+
   const key = word.toLowerCase();
 
   try {
     // 1. Check Cache First
+    const redis = await getRedis();
     const cachedData = await redis.hGetAll(key);
     if (Object.keys(cachedData).length > 0) {
       return {
@@ -84,6 +122,7 @@ export async function wordSearch(word: string) {
   if (data) {
     // 3. Store in Cache
     try {
+      const redis = await getRedis();
       await redis.hSet(key, {
           definition: data.definition || "",
           antonyms: JSON.stringify(data.antonyms || []),
