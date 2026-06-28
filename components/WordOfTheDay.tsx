@@ -1,16 +1,28 @@
-'use client';
-import { useAtom } from "jotai";
-import { sidebar } from "../store/atom/sidebar";
+"use client"
+
 import Divheading from "./Divheading";
 import { motion } from "framer-motion";
 
-export default function WordOfTheDay(){
+type DailyWord = {
+    word: string;
+    definition: string;
+    synonyms: string[];
+    antonyms: string[];
+    example: string;
+};
 
-    const [sideBar, setSideBar] = useAtom(sidebar);
+export default function WordOfTheDay({ dailyWord }: { dailyWord: DailyWord | null }){
+
+    const backUpData = {
+        "word": "meticulous",
+        "definition": "giving a lot of attention to detail; very careful and precise",
+        "synonyms": ["thorough", "diligent", "fastidious"],
+        "antonyms": ["careless", "negligent"],
+        "example": "She was a meticulous researcher, checking every fact and figure before including it in her report."
+    }
 
     return(
         <div
-            onClick={() => {if(sideBar) setSideBar(false)}}  
             className="w-full bg-transparent flex flex-col items-center px-4 md:p-10 gap-3 md:gap-5 mt-10">
             <motion.h1 
                 initial={{opacity: 0, y: 50}}
@@ -71,7 +83,7 @@ export default function WordOfTheDay(){
                         }}
                         className="text-4xl sm:text-5xl md:text-6xl text-[#2258c3] text-roboto font-bold tracking-wide text-center"
                         >
-                        Serendipity
+                        {dailyWord ? dailyWord.word : backUpData.word}
                     </motion.h1>
                     <section className="w-full mt-10 flex flex-col gap-7">
                         <motion.span 
@@ -95,7 +107,7 @@ export default function WordOfTheDay(){
                                 textColor="text-purple-800"
                             />
                             <section className="mt-1 text-lg">
-                                <p className="text-black/60 text-lg text-roboto">{"The occurrence and development of events by chance in a happy or beneficial way; a pleasant surprise or unexpected discovery."}</p>
+                                <p className="text-black/60 text-lg text-roboto">{dailyWord ? dailyWord.definition : backUpData.definition}</p>
                             </section>
                         </motion.span>
                         <motion.span 
@@ -119,7 +131,7 @@ export default function WordOfTheDay(){
                                 textColor="text-blue-800"
                             />
                             <section className="mt-1 text-lg">
-                                <p className="text-black/60 text-lg text-roboto italic">{`"Meeting my future business partner at that random coffee shop was pure serendipity."`}</p>
+                                <p className="text-black/60 text-lg text-roboto italic">{dailyWord ? dailyWord.example : backUpData.example}</p>
                             </section>
                         </motion.span>
                         <motion.span 
@@ -143,7 +155,7 @@ export default function WordOfTheDay(){
                                 textColor="text-green-800"
                             />
                             <section className='flex flex-wrap mt-2 gap-2'>
-                                {["fortune", "luck", "chance", "providence", "kismet"].map((word, index) => (
+                                {(dailyWord ? dailyWord.synonyms : backUpData.synonyms).map((word, index) => (
                                     <span 
                                         key={index}
                                         className='bg-amber-700/10 p-2 text-sm rounded-full text-black/80 px-4 cursor-pointer text-roboto border-b-2 border-gray-600'
@@ -174,7 +186,7 @@ export default function WordOfTheDay(){
                                 textColor="text-red-800"
                             />
                             <section className='flex flex-wrap mt-2 gap-2'>
-                                {["Misfortune", "Bad luck", "Calamity", "Disaster", "Tragedy", "Unluckiness"].map((word, index) => (
+                                {(dailyWord ? dailyWord.antonyms : backUpData.antonyms).map((word, index) => (
                                     <span 
                                         key={index}
                                         className='bg-amber-700/10 p-2 text-sm rounded-full text-black/80 px-4 cursor-pointer text-roboto border-b-2 border-gray-600'

@@ -8,9 +8,14 @@ export const redis = globalForRedis.redis || createClient({
 
 if (process.env.NODE_ENV !== "production") globalForRedis.redis = redis;
 
+let connectPromise: Promise<unknown> | null = null;
+
 export const getRedis = async () => {
   if (!redis.isOpen) {
-    await redis.connect();
+    connectPromise ??= redis.connect().finally(() => {
+      connectPromise = null;
+    });
+    await connectPromise;
   }
 
   return redis;

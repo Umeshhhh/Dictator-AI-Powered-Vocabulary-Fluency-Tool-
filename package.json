@@ -13,20 +13,16 @@
     "@auth/prisma-adapter": "^2.11.2",
     "@azure-rest/ai-inference": "latest",
     "@azure/core-auth": "latest",
-    "@azure/core-sse": "latest",
     "@prisma/client": "^5.22.0",
     "bcryptjs": "^3.0.3",
     "framer-motion": "^12.23.12",
     "jotai": "^2.12.5",
-    "motion": "^12.23.6",
     "next": "^15.5.19",
     "next-auth": "^4.24.14",
-    "openai": "^5.8.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.6.0",
-    "redis": "^5.8.2",
-    "zod": "^3.25.76"
+    "redis": "^5.8.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",

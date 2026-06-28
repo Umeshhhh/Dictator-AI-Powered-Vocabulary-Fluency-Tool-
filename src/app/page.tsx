@@ -4,7 +4,9 @@ import DotBackground from "../../components/GridDotBackground";
 import LoginUser from "../../components/LoginUser";
 import MainPage from "../../components/MainPage";
 import SideBar from "../../components/SideBar";
-import WordOfTheDay from "../../components/WordOfTheDay";
+import WordOfTheDaySection from "../../components/WordOfTheDaySection";
+
+export const dynamic = "force-dynamic";
 
 export default function Home() {
 
@@ -14,13 +16,10 @@ export default function Home() {
         <SideBar />
         <LoginUser />
         <main className="h-screen z-10 w-full">
-            {/* <div className="h-full w-full absolute top-0">
-              <SmokeyCursor />
-            </div> */}
           <MainPage />
         </main>
         <div className="w-full flex flex-col justify-center items-center">
-          <WordOfTheDay />
+          <WordOfTheDaySection />
           <Features />
         </div>
         <footer className="w-full bg-black">

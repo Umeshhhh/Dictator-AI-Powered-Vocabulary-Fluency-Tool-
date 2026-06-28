@@ -61,15 +61,10 @@ GOOGLE_ID=""
 GOOGLE_SECRET=""
 ```
 
-For Docker, create `.env.docker`:
+For the production Docker deployment, create `.env`:
 
 ```env
-DATABASE_URL=postgresql://user:password@postgres:5432/dictator?schema=public
-REDIS_URL=redis://redis:6379
-
-NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=replace-with-a-secure-random-secret
-
 NEXT_GITHUB_TOKEN=your-github-models-token
 
 GITHUB_ID=
