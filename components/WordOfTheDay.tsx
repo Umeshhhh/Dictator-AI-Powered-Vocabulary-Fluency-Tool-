@@ -1,7 +1,10 @@
 "use client"
 
+import { JSX, useEffect, useState } from "react";
 import Divheading from "./Divheading";
 import { motion } from "framer-motion";
+import { checkSavedWord, saveWord } from "@/app/actions/userActions";
+import toast from "react-hot-toast";
 
 type DailyWord = {
     word: string;
@@ -13,13 +16,79 @@ type DailyWord = {
 
 export default function WordOfTheDay({ dailyWord }: { dailyWord: DailyWord | null }){
 
+    const [copyIcon, setCopyIcon] = useState<JSX.Element>(<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="black" className="size-6"><path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" /></svg>);
+    const [saveIcon, setSaveIcon] = useState<JSX.Element>(<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6"><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" /></svg>);
+    const [isSaving, setIsSaving] = useState<boolean>(false);
+
     const backUpData = {
-        "word": "meticulous",
+        "word": "Meticulous",
         "definition": "giving a lot of attention to detail; very careful and precise",
         "synonyms": ["thorough", "diligent", "fastidious"],
         "antonyms": ["careless", "negligent"],
         "example": "She was a meticulous researcher, checking every fact and figure before including it in her report."
     }
+
+    const handleSave = async () => {
+        const word = dailyWord ? dailyWord.word : backUpData.word;
+        if (!word) return;
+        setIsSaving(true);
+        const res = await saveWord(word);
+        if (res?.error) toast.error(res.error);
+        else if (res?.success) toast.success(res.message);
+        else toast.success(res?.message || "Word status updated");
+        setIsSaving(false);
+    }
+
+    async function copyDailyWordData() {
+
+        const wordData = dailyWord ? dailyWord : backUpData;
+
+        const itemCopiedIcon : JSX.Element = <svg xmlns="http://www.w3.org/2000/svg" fill="black" viewBox="0 0 384 512" stroke="currentColor" className="size-6"><path d="M256 0c23.7 0 44.4 12.9 55.4 32l8.6 0c35.3 0 64 28.7 64 64l0 352c0 35.3-28.7 64-64 64L64 512c-35.3 0-64-28.7-64-64L0 96C0 60.7 28.7 32 64 32l8.6 0C83.6 12.9 104.3 0 128 0L256 0zm26.9 212.6c-10.7-7.8-25.7-5.4-33.5 5.3l-85.6 117.7-26.5-27.4c-9.2-9.5-24.4-9.8-33.9-.6s-9.8 24.4-.6 33.9l46.4 48c4.9 5.1 11.8 7.8 18.9 7.3s13.6-4.1 17.8-9.8L288.2 246.1c7.8-10.7 5.4-25.7-5.3-33.5zM136 64c-13.3 0-24 10.7-24 24s10.7 24 24 24l112 0c13.3 0 24-10.7 24-24s-10.7-24-24-24L136 64z"/></svg>
+        const originalIcon : JSX.Element = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="black" className="size-6"><path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" /></svg>
+
+        const copiedText = `
+            ${wordData.word.substring(0, 1).toUpperCase()}${wordData.word.substring(1).toLowerCase()}
+
+            Definition: ${wordData.definition}
+
+            Example: ${wordData.example}
+
+            Synonyms: ${wordData.synonyms}
+
+            Antonyms: ${wordData.antonyms}
+
+            Keep Learning, Keep Growing..
+            @Dictator: dictator.umesh.app
+        `;
+
+        try {
+            
+            await navigator.clipboard.writeText(copiedText);
+
+            setCopyIcon(itemCopiedIcon);
+
+            setTimeout(() => {
+                setCopyIcon(originalIcon);
+            }, 1500);
+
+        }catch(err) {
+            toast.error("Failed to copy word");
+        }
+
+    }
+
+    const alreadySavedWordCheck = async (word: string) => {
+
+        const res = await checkSavedWord(word);
+        if(res?.alreadySaved) {
+            setSaveIcon(<svg xmlns="http://www.w3.org/2000/svg" fill="black" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6"><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" /></svg>);
+        }
+    }
+
+    useEffect(() => {
+        const word = dailyWord ? dailyWord.word : backUpData.word;
+        alreadySavedWordCheck(word);
+    }, []);
 
     return(
         <div
@@ -62,15 +131,19 @@ export default function WordOfTheDay({ dailyWord }: { dailyWord: DailyWord | nul
                             <p className="font-semibold">Today&apos;s Word</p>
                         </section>
                         <section className="flex gap-4">
-                            <span className="cursor-pointer p-2 hover:bg-black/5 rounded-xl">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
-                                </svg>
+                            <span 
+                                onClick={handleSave}
+                                aria-disabled={isSaving}
+                                className="cursor-pointer p-2 hover:bg-black/5 rounded-xl"
+                            >
+                                {saveIcon}
                             </span>
-                            <span className="cursor-pointer p-2 hover:bg-black/5 rounded-xl">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" />
-                                </svg>
+                            <span 
+                                onClick={copyDailyWordData}
+                                className="cursor-pointer p-2 hover:bg-black/5 rounded-xl"
+                            >
+                                {copyIcon}
+                                
                             </span>
                         </section>
                     </section>
@@ -83,7 +156,7 @@ export default function WordOfTheDay({ dailyWord }: { dailyWord: DailyWord | nul
                         }}
                         className="text-4xl sm:text-5xl md:text-6xl text-[#2258c3] text-roboto font-bold tracking-wide text-center"
                         >
-                        {dailyWord ? dailyWord.word : backUpData.word}
+                        {dailyWord ? `${dailyWord.word.substring(0, 1).toUpperCase()}${dailyWord.word.substring(1)}` : backUpData.word}
                     </motion.h1>
                     <section className="w-full mt-10 flex flex-col gap-7">
                         <motion.span 

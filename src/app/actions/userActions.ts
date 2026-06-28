@@ -6,6 +6,37 @@ import { authOptions } from "@/lib/authOptions";
 import { revalidatePath } from "next/cache";
 import { rateLimit } from "@/lib/rateLimit";
 
+export async function checkSavedWord(word: string) {
+
+  try{
+    const session = await getServerSession(authOptions);
+
+    if(!session || !session.user || !session.user.id){
+      return { error: "User must be logged in first." };
+    }
+
+    const userId = session.user.id as string;
+
+    const existingWord = await prisma.savedWord.findUnique({
+      where: {
+        userId_word: {
+          userId,
+          word: word.toLowerCase()
+        }
+      }
+    });
+
+    if (existingWord) {
+      return { alreadySaved: true, message: "Word is already saved!" };
+    }
+    return { alreadySaved: false, message: "Word is not saved" };
+  }catch(err) {
+    console.log("Error checking for the word is saved or not.");
+    return { error: "Error while checking if the word is saved or not" };
+  }
+
+}
+
 export async function saveWord(word: string) {
   try {
     const session = await getServerSession(authOptions);
